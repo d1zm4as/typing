@@ -1,3 +1,9 @@
+/**
+ * Calculates Words Per Minute (WPM) from correct characters and time
+ * @param {number} correctChars - Number of correctly typed characters
+ * @param {number} timeInSeconds - Time elapsed in seconds
+ * @returns {number} WPM rounded to nearest integer
+ */
 export const calculateWPM = (correctChars, timeInSeconds) => {
   if (timeInSeconds === 0) return 0;
   const minutes = timeInSeconds / 60;
@@ -5,11 +11,24 @@ export const calculateWPM = (correctChars, timeInSeconds) => {
   return Math.round(words / minutes);
 };
 
+/**
+ * Calculates typing accuracy as a percentage
+ * @param {number} correctChars - Number of correctly typed characters
+ * @param {number} totalChars - Total characters typed
+ * @returns {number} Accuracy percentage (0-100)
+ */
 export const calculateAccuracy = (correctChars, totalChars) => {
   if (totalChars === 0) return 100;
   return Math.round((correctChars / totalChars) * 100);
 };
 
+/**
+ * Calculates comprehensive typing statistics
+ * @param {string} userInput - User's typed input
+ * @param {string} testText - Target text to type
+ * @param {number} timeInSeconds - Time elapsed
+ * @returns {Object} Object containing wpm, rawWPM, accuracy, and character counts
+ */
 export const calculateStats = (userInput, testText, timeInSeconds) => {
   let correctChars = 0;
   let incorrectChars = 0;
