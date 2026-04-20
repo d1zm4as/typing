@@ -158,13 +158,13 @@ All sounds can be toggled in settings.
 ## Future Enhancements
 
 Potential features for future versions:
-- Multiplayer racing mode
+
 - Custom word lists
 - Theme customization
 - More quote categories
 - Advanced analytics
 - Daily challenges
-- Social sharing
+
 
 ## Troubleshooting
 
