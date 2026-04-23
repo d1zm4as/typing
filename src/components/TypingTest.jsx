@@ -8,6 +8,7 @@ import { getRandomQuote, getQuotesByLength } from '../data/quotes';
 import Timer from './Timer';
 import Stats from './Stats';
 import WpmGraph from './WpmGraph';
+import TestConfig from './TestConfig';
 
 export default function TypingTest({ onViewHistory, onViewSettings }) {
   // State declarations - organized at top
@@ -36,6 +37,8 @@ export default function TypingTest({ onViewHistory, onViewSettings }) {
   });
   const [showZenControls, setShowZenControls] = useState(false);
   const [zenControlTimeout, setZenControlTimeout] = useState(null);
+  const [isPunctuation, setIsPunctuation] = useState(false);
+  const [isNumbers, setIsNumbers] = useState(false);
   
   const { toggleTheme, isDark } = useTheme();
   const inputRef = useRef(null);
@@ -64,11 +67,8 @@ export default function TypingTest({ onViewHistory, onViewSettings }) {
           const s = calculateStats(userInput, testText, seconds);
           setWpmHistory((h) => [...h, s.wpm]);
         } catch (e) {}
-      }, 1000);
-    }
     return () => clearInterval(interval);
   }, [isActive, isFinished, userInput, testText, testType, timeMode, startTime]);
-
   useEffect(() => {
     if (inputRef.current && !isFinished) inputRef.current.focus();
   }, [isFinished]);
@@ -238,7 +238,8 @@ export default function TypingTest({ onViewHistory, onViewSettings }) {
       }
     };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    return (
+    <div className={`app-shell ${zenMode ? 'zen-mode' + (showZenControls ? ' show-controls' : '' ) : ''}`}>
   }, [zenMode, testType, handleTestTypeChange]);
 
   // Zen mode mouse move handler
@@ -255,7 +256,8 @@ export default function TypingTest({ onViewHistory, onViewSettings }) {
     };
     
     window.addEventListener('mousemove', handleMouseMove);
-    return () => {
+    return (
+    <div className={`app-shell ${zenMode ? 'zen-mode' + (showZenControls ? ' show-controls' : '' ) : ''}`}>
       window.removeEventListener('mousemove', handleMouseMove);
       if (zenControlTimeout) clearTimeout(zenControlTimeout);
     };
@@ -300,6 +302,7 @@ export default function TypingTest({ onViewHistory, onViewSettings }) {
         const showCursor = index === userInput.length && !isFinished;
 
         return (
+    <div className={`app-shell ${zenMode ? 'zen-mode' + (showZenControls ? ' show-controls' : '' ) : ''}`}>
           <span key={`c-${wIdx}-${i}`} className="smooth-fade" aria-hidden>
             {showCursor && <span className="cursor" aria-hidden />}
             <span className={`${className} ${index === lastTypedIndex ? 'char-pop' : ''}`}>{char}</span>
@@ -320,6 +323,7 @@ export default function TypingTest({ onViewHistory, onViewSettings }) {
       }
 
       return (
+    <div className={`app-shell ${zenMode ? 'zen-mode' + (showZenControls ? ' show-controls' : '' ) : ''}`}>
         <span key={`w-${wIdx}`} className={`word ${wordDone ? 'word-done' : ''}`} aria-hidden>
           {letters}
           {spaceCursor && <span className="cursor" aria-hidden />}
@@ -350,7 +354,7 @@ export default function TypingTest({ onViewHistory, onViewSettings }) {
   };
 
   return (
-    <div className={`app-shell ${zenMode ? 'zen-mode' + (showZenControls ? ' show-controls' : '') : ''}`}>
+    <div className={`app-shell ${zenMode ? 'zen-mode' + (showZenControls ? ' show-controls' : '' ) : ''}`}>
       <div className="nav-buttons">
         <button 
           onClick={() => setZenMode(!zenMode)} 
@@ -389,81 +393,30 @@ export default function TypingTest({ onViewHistory, onViewSettings }) {
           </div>
         </div>
 
-        {/* Controls area */}
-        <div className="controls-area">
-            {/* Mode selector - with Tab hint */}
-            <div className="segmented" title="Press Tab to cycle">
-              <button
-                className={`seg-btn ${testType === 'words' ? 'active' : ''}`}
-                onClick={() => handleTestTypeChange('words')}
-              >
-                words
-              </button>
-              {[15, 30, 60].map((seconds) => (
-                <button
-                  key={seconds}
-                  className={`seg-btn ${testType === 'time' && timeMode === seconds ? 'active' : ''}`}
-                  onClick={() => { setTimeMode(seconds); handleTestTypeChange('time'); }}
-                >
-                  {seconds}s
-                </button>
-              ))}
-              <button
-                className={`seg-btn ${testType === 'quote' ? 'active' : ''}`}
-                onClick={() => handleTestTypeChange('quote')}
-              >
-                quote
-              </button>
-            </div>
-
-            {/* Word count controls (shown when in words mode) */}
-            {testType === 'words' && (
-              <div className="segmented">
-                {[10,25,50,100].map((n) => (
-                  <button
-                    key={n}
-                    className={`seg-btn ${wordCount === n ? 'active' : ''}`}
-                    onClick={() => { setWordCount(n); setWords(generateWords(n)); handleReset(); }}
-                  >
-                    {n}
-                  </button>
-                ))}
-                <button className={`seg-btn ${wordCount === 'custom' ? 'active' : ''}`} onClick={() => setWordCount('custom')}>Custom</button>
-              </div>
-            )}
-            
-            {wordCount === 'custom' && testType === 'words' && (
-              <input type="number" min="1" max="1000" defaultValue={50} onBlur={(e) => { const n = Math.max(1, Math.min(1000, parseInt(e.target.value,10)||50)); setWordCount(n); setWords(generateWords(n)); handleReset(); }} className="custom-count-input" />
-            )}
-
-            {/* Quote length controls (shown when in quote mode) */}
-            {testType === 'quote' && (
-              <div className="segmented">
-                {['short', 'medium'].map((length) => (
-                  <button
-                    key={length}
-                    className={`seg-btn ${quoteLength === length ? 'active' : ''}`}
-                    onClick={() => handleQuoteLengthChange(length)}
-                  >
-                    {length}
-                  </button>
-                ))}
-                <button
-                  className="seg-btn"
-                  onClick={() => { handleReset(); setCurrentQuote(getQuotesByLength(quoteLength)[Math.floor(Math.random() * getQuotesByLength(quoteLength).length)]); }}
-                  title="Get a new quote"
-                >
-                  new
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
+        {/* TestConfig area - Monkeytype-style mode selector */}
+        <TestConfig
+          testType={testType}
+          setTestType={handleTestTypeChange}
+          timeMode={timeMode}
+          setTimeMode={handleTimeChange}
+          wordCount={wordCount}
+          setWordCount={(count) => {
+            setWordCount(count);
+            setWords(generateWords(count));
+            handleReset();
+          }}
+          quoteLength={quoteLength}
+          setQuoteLength={handleQuoteLengthChange}
+          isPunctuation={isPunctuation}
+          setIsPunctuation={setIsPunctuation}
+          isNumbers={isNumbers}
+          setIsNumbers={setIsNumbers}
+        />
 
         {/* Timer display */}
         {testType === 'time' && (
           <div className="mb-6 text-center">
-            <div className={`text-3xl font-mono font-bold ${isActive ? 'text-white' : 'text-gray-600'}`}>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', fontFamily: 'var(--font-main)', color: isActive ? 'var(--text-color)' : 'var(--sub-color)' }}>
               {Math.max(0, timeMode - timeElapsed)}s
             </div>
           </div>
@@ -471,7 +424,7 @@ export default function TypingTest({ onViewHistory, onViewSettings }) {
 
         {/* Quote author display */}
         {testType === 'quote' && currentQuote && (
-          <div className="mb-2 text-center muted text-xs">
+          <div className="mb-2 text-center" style={{ color: 'var(--sub-color)', fontSize: '0.875rem' }}>
             <span>— {currentQuote.author}</span>
           </div>
         )}

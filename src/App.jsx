@@ -2,6 +2,7 @@ import { useState } from 'react'
 import TypingTest from './components/TypingTest'
 import History from './components/History'
 import Settings from './components/Settings'
+import BackgroundParticles from './components/BackgroundParticles'
 import { ThemeProvider } from './contexts/ThemeContext'
 import './App.css'
 
@@ -10,6 +11,7 @@ function App() {
 
   return (
     <ThemeProvider>
+      <BackgroundParticles />
       {view === 'test' ? (
         <TypingTest onViewHistory={() => setView('history')} onViewSettings={() => setView('settings')} />
       ) : view === 'history' ? (
